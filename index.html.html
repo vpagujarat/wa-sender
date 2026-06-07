@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>VPAG WhatsApp Messenger</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --g:#25d366;--dk:#075e54;--md:#128c7e;
+  --bg:#f0f4f0;--card:#fff;--bdr:#dde8dd;
+  --txt:#1a2e1a;--mut:#6b7f6b;--red:#e53935;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);min-height:100vh;color:var(--txt);padding-bottom:60px;}
+
+/* header */
+.hdr{background:var(--dk);color:#fff;padding:13px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;}
+.hdr-ico{width:34px;height:34px;background:var(--md);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.hdr h1{font-size:15px;font-weight:700;}
+.hdr p{font-size:11px;opacity:.75;margin-top:1px;}
+
+/* tab bar */
+.tabs{background:var(--md);display:flex;}
+.tab{flex:1;text-align:center;padding:8px 0;font-size:11px;font-weight:600;color:rgba(255,255,255,.45);border-bottom:2px solid transparent;transition:all .2s;}
+.tab.on{color:#fff;border-bottom-color:var(--g);}
+.tab.done{color:rgba(255,255,255,.65);}
+
+/* pages */
+.pg{display:none;padding:16px;}
+.pg.on{display:block;}
+
+/* card */
+.card{background:var(--card);border-radius:14px;padding:18px 16px;margin-bottom:14px;border:1px solid var(--bdr);}
+.clbl{font-size:11px;font-weight:700;color:var(--dk);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px;}
+
+/* note */
+.note{background:#fffde7;border-left:3px solid #f9a825;border-radius:0 8px 8px 0;padding:10px 13px;font-size:13px;color:#555;line-height:1.65;margin-bottom:14px;}
+.note b{color:#333;}
+
+/* paste area */
+.paste-box{width:100%;min-height:140px;padding:12px 14px;border:1.5px solid var(--bdr);border-radius:10px;font-size:14px;font-family:inherit;resize:vertical;color:var(--txt);outline:none;line-height:1.6;background:#fafffe;}
+.paste-box:focus{border-color:var(--dk);}
+
+/* field */
+.fld{margin-bottom:13px;}
+.fld label{display:block;font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
+.fld select,.fld input{width:100%;padding:11px 13px;border:1.5px solid var(--bdr);border-radius:10px;font-size:15px;background:#fff;color:var(--txt);outline:none;-webkit-appearance:none;appearance:none;}
+.fld select:focus,.fld input:focus{border-color:var(--dk);}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+/* message */
+.msg-box{width:100%;min-height:160px;padding:12px 14px;border:1.5px solid var(--bdr);border-radius:10px;font-size:14px;font-family:inherit;resize:vertical;color:var(--txt);outline:none;line-height:1.6;}
+.msg-box:focus{border-color:var(--dk);}
+.hint{font-size:12px;color:var(--mut);margin-top:6px;line-height:1.5;}
+.hint code{background:#e8f5e9;padding:1px 5px;border-radius:4px;color:#2d6a2d;font-family:monospace;}
+
+/* preview */
+.pbg{background:#e5ddd5;border-radius:10px;padding:14px 12px;margin-top:12px;}
+.bubble{background:#fff;border-radius:10px 10px 10px 2px;padding:10px 12px;font-size:14px;white-space:pre-wrap;word-break:break-word;line-height:1.5;max-width:92%;color:var(--txt);}
+.btime{font-size:11px;color:var(--mut);text-align:right;margin-top:6px;}
+
+/* buttons */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;border-radius:12px;font-size:16px;font-weight:700;border:none;cursor:pointer;transition:opacity .15s,transform .1s;margin-bottom:10px;}
+.btn:active{transform:scale(.97);opacity:.88;}
+.btn:last-child{margin-bottom:0;}
+.b-green{background:var(--g);color:#fff;}
+.b-dark{background:var(--dk);color:#fff;}
+.b-out{background:#fff;color:var(--txt);border:1.5px solid var(--bdr);font-size:15px;padding:13px;}
+.b-red{background:#fff;color:var(--red);border:1.5px solid #ffcdd2;font-size:15px;padding:13px;}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
+.stat{background:#fff;border-radius:12px;padding:12px 6px;text-align:center;border:1px solid var(--bdr);}
+.stat .n{font-size:26px;font-weight:700;color:var(--dk);line-height:1;}
+.stat .n.gr{color:var(--g);}
+.stat .n.or{color:#f57c00;}
+.stat .l{font-size:11px;color:var(--mut);margin-top:3px;}
+
+/* member hero */
+.mhero{background:#f0faf4;border:1.5px solid #b2dfb2;border-radius:14px;padding:20px 16px;margin-bottom:14px;text-align:center;}
+.ava{width:56px;height:56px;border-radius:50%;background:var(--dk);color:#fff;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;}
+.mname{font-size:21px;font-weight:700;}
+.mphone{font-size:15px;color:var(--mut);font-family:monospace;margin-top:4px;}
+.mmeta{font-size:11px;color:#aaa;margin-top:8px;}
+
+/* progress */
+.pbar{height:6px;background:#e0ebe0;border-radius:3px;overflow:hidden;margin-top:16px;}
+.pfill{height:100%;background:var(--g);border-radius:3px;transition:width .4s ease;}
+.plbl{font-size:12px;color:var(--mut);margin-top:5px;text-align:center;}
+
+/* skip log */
+.ski{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f5f5f5;font-size:13px;color:var(--mut);}
+.tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:#fff3e0;color:#e65100;}
+
+/* done */
+.done{text-align:center;padding:50px 20px;}
+.done .ck{font-size:72px;margin-bottom:16px;}
+.done h2{font-size:24px;font-weight:700;color:var(--dk);}
+.done p{font-size:14px;color:var(--mut);margin-top:8px;line-height:1.6;}
+
+/* parsed table preview */
+.tbl-wrap{overflow-x:auto;margin-top:10px;border-radius:8px;border:1px solid var(--bdr);}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{background:#f0faf4;color:var(--dk);padding:8px 10px;text-align:left;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.5px;}
+td{padding:8px 10px;border-top:1px solid #f0f0f0;color:var(--txt);}
+tr:nth-child(even) td{background:#fafffe;}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-ico">
+    <svg width="20" height="20" viewBox="0 0 32 32" fill="none">
+      <path d="M16 3C8.82 3 3 8.82 3 16c0 2.3.6 4.47 1.65 6.34L3 29l6.87-1.62A13 13 0 0016 29c7.18 0 13-5.82 13-13S23.18 3 16 3z" fill="white"/>
+      <path d="M21.5 18.5c-.3-.15-1.77-.87-2.04-.97-.28-.1-.48-.15-.68.15s-.78.97-.96 1.17c-.18.2-.35.22-.55.06-.25-.12-1.05-.39-2-.22-.75.14-1.38.52-1.86 1.08-.13.15-.27.22-.47.17-.25-.06-.97-.35-1.84-1.12-.7-.63-1.17-1.4-1.3-1.64-.14-.24-.01-.38.1-.5.1-.11.25-.3.37-.44.12-.15.16-.25.25-.42.08-.17.04-.31-.02-.44-.06-.12-.57-1.36-.78-1.86-.2-.49-.41-.42-.57-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.87.85-.87 2.07 0 1.22.89 2.4 1.02 2.57.12.17 1.75 2.68 4.24 3.75.59.25 1.05.41 1.41.53.59.19 1.13.16 1.55.1.47-.08 1.48-.6 1.68-1.18.21-.58.21-1.08.14-1.18-.06-.1-.23-.16-.48-.28z" fill="#075e54"/>
+    </svg>
+  </div>
+  <div>
+    <h1>VPAG WhatsApp Messenger</h1>
+    <p id="modeLbl">Detecting device…</p>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab on" id="t1">1. Paste</div>
+  <div class="tab" id="t2">2. Columns</div>
+  <div class="tab" id="t3">3. Message</div>
+  <div class="tab" id="t4">4. Send</div>
+</div>
+
+<!-- PAGE 1: Paste -->
+<div class="pg on" id="p1">
+  <br>
+  <div class="note">
+    <b>How to get your data here:</b><br>
+    1. Open the Excel/CSV received on WhatsApp or email<br>
+    2. Open it in <b>Numbers</b> (iPhone) or <b>Google Sheets</b><br>
+    3. Select all (tap a cell → Select All), Copy<br>
+    4. Tap the box below and Paste
+  </div>
+  <div class="card">
+    <div class="clbl">Paste your registration data</div>
+    <textarea class="paste-box" id="pasteBox" placeholder="Paste your Excel / spreadsheet data here…&#10;&#10;Name, Mobile&#10;Rameshbhai Patel, 9876543210&#10;Sunita Shah, 9123456789&#10;…"></textarea>
+    <br><br>
+    <button class="btn b-dark" onclick="parsePaste()">→ &nbsp;Read Data</button>
+  </div>
+</div>
+
+<!-- PAGE 2: Column picker -->
+<div class="pg" id="p2">
+  <br>
+  <div class="card" id="previewCard">
+    <div class="clbl">Data preview</div>
+    <div class="tbl-wrap"><table id="previewTable"></table></div>
+    <p style="font-size:12px;color:var(--mut);margin-top:8px;" id="rowCount"></p>
+  </div>
+  <div class="card">
+    <div class="clbl">Which columns?</div>
+    <div class="fld"><label>Name column</label><select id="nameCol"></select></div>
+    <div class="fld"><label>Mobile number column</label><select id="phoneCol"></select></div>
+    <div class="frow">
+      <div class="fld"><label>Country code</label><input type="text" id="cc" value="91" inputmode="numeric"></div>
+      <div class="fld"><label>Header rows to skip</label><input type="text" id="skip" value="1" inputmode="numeric"></div>
+    </div>
+    <button class="btn b-dark" onclick="loadMembers()">→ &nbsp;Load Members</button>
+  </div>
+</div>
+
+<!-- PAGE 3: Message -->
+<div class="pg" id="p3">
+  <br>
+  <div class="card">
+    <div class="clbl">Compose message</div>
+    <textarea class="msg-box" id="msgBox" oninput="refreshPreview()">Namaste {name} ji! 🙏
+
+You are registered for our upcoming VPAG Gujarat event.
+
+📅 *Date:* [Event Date]
+📍 *Venue:* [Venue Name]
+🕐 *Time:* [Time]
+
+Please be on time. We look forward to seeing you!
+
+— VPAG Gujarat Team</textarea>
+    <p class="hint">Use <code>{name}</code> for the member's name. <code>*word*</code> = bold in WhatsApp.</p>
+    <div class="pbg">
+      <div class="bubble" id="prevBubble"></div>
+      <div class="btime">Preview · first member</div>
+    </div>
+  </div>
+  <button class="btn b-green" onclick="startSend()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>
+    Start Sending
+  </button>
+</div>
+
+<!-- PAGE 4: Send -->
+<div class="pg" id="p4">
+  <br>
+  <div class="stats">
+    <div class="stat"><div class="n" id="sTot">0</div><div class="l">Total</div></div>
+    <div class="stat"><div class="n gr" id="sSent">0</div><div class="l">Sent</div></div>
+    <div class="stat"><div class="n or" id="sLeft">0</div><div class="l">Left</div></div>
+  </div>
+
+  <div id="sendArea">
+    <div class="mhero">
+      <div class="ava" id="mAva">?</div>
+      <div class="mname" id="mName">—</div>
+      <div class="mphone" id="mPhone">—</div>
+      <div class="mmeta" id="mMeta"></div>
+    </div>
+    <button class="btn b-green" onclick="openWA()">
+      <svg width="20" height="20" viewBox="0 0 32 32" fill="none">
+        <path d="M16 3C8.82 3 3 8.82 3 16c0 1.6.43 3.1 1.18 4.4L7 25l4.72-1.17A9 9 0 0016 25c4.97 0 9-4.03 9-9s-4.03-9-9-9z" fill="white"/>
+      </svg>
+      Open in WhatsApp
+    </button>
+    <button class="btn b-out" onclick="markSent()">✓ &nbsp;Sent — next member</button>
+    <button class="btn b-red" onclick="skipOne()">↷ &nbsp;Skip this member</button>
+    <div class="pbar"><div class="pfill" id="pFill" style="width:0%"></div></div>
+    <div class="plbl" id="pLbl">0 / 0</div>
+  </div>
+
+  <div class="card" id="skipLog" style="display:none;margin-top:14px;">
+    <div class="clbl">Skipped</div>
+    <div id="skipItems"></div>
+  </div>
+</div>
+
+<!-- DONE -->
+<div class="pg" id="p5">
+  <div class="done">
+    <div class="ck">✅</div>
+    <h2>All done!</h2>
+    <p id="doneMsg"></p>
+    <br>
+    <button class="btn b-out" style="max-width:180px;margin:0 auto;" onclick="location.reload()">↺ Start Over</button>
+  </div>
+</div>
+
+<script>
+let rows=[],headers=[],members=[],idx=0,sent=0,skipped=[],isMobile=false;
+
+// detect device
+isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+document.getElementById('modeLbl').textContent=isMobile
+  ?'📱 Mobile — opens WhatsApp app directly'
+  :'💻 Desktop — opens WhatsApp Web';
+
+function goPage(n){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach((t,i)=>{
+    t.classList.remove('on','done');
+    if(i+1<n) t.classList.add('done');
+    if(i+1===n) t.classList.add('on');
+  });
+  document.getElementById('p'+n).classList.add('on');
+  window.scrollTo(0,0);
+}
+
+// ── PASTE PARSER ──
+function parsePaste(){
+  const raw=document.getElementById('pasteBox').value.trim();
+  if(!raw){alert('Please paste your data first.');return;}
+
+  // Try to detect separator: tab (from Numbers/Excel copy) or comma
+  const lines=raw.split(/\r?\n/).filter(l=>l.trim());
+  if(lines.length<2){alert('Need at least 2 rows (header + data).');return;}
+
+  const sep=lines[0].includes('\t')?'\t':',';
+  rows=lines.map(l=>l.split(sep).map(c=>c.replace(/^"|"$/g,'').trim()));
+  headers=rows[0].map((h,i)=>h||'Col '+(i+1));
+
+  buildPreviewTable();
+  populateSelects();
+  document.getElementById('rowCount').textContent=
+    (rows.length-1)+' data rows · '+headers.length+' columns detected';
+  goPage(2);
+}
+
+function buildPreviewTable(){
+  const tbl=document.getElementById('previewTable');
+  // show header + first 3 rows
+  const show=rows.slice(0,4);
+  tbl.innerHTML='<thead><tr>'+headers.map(h=>'<th>'+esc(h)+'</th>').join('')+'</tr></thead>'
+    +'<tbody>'+show.slice(1).map(r=>'<tr>'+r.map(c=>'<td>'+esc(c)+'</td>').join('')+'</tr>').join('')+'</tbody>';
+}
+
+function populateSelects(){
+  ['nameCol','phoneCol'].forEach(id=>{
+    const s=document.getElementById(id);
+    s.innerHTML=headers.map((h,i)=>'<option value="'+i+'">'+esc(h)+'</option>').join('');
+  });
+  const ng=headers.findIndex(h=>/name|naam|full|member|attendee/i.test(h));
+  const pg=headers.findIndex(h=>/mobile|phone|whatsapp|contact|number|mo\b|no\b/i.test(h));
+  if(ng>=0) document.getElementById('nameCol').value=ng;
+  if(pg>=0) document.getElementById('phoneCol').value=pg;
+}
+
+function loadMembers(){
+  const ni=+document.getElementById('nameCol').value;
+  const pi=+document.getElementById('phoneCol').value;
+  const cc=document.getElementById('cc').value.trim().replace(/\D/g,'')||'91';
+  const skip=Math.max(1,+document.getElementById('skip').value||1);
+  members=[];
+  for(let r=skip;r<rows.length;r++){
+    const row=rows[r];
+    const name=(row[ni]||'').trim();
+    let phone=(row[pi]||'').trim().replace(/\D/g,'');
+    if(!phone) continue;
+    if(!phone.startsWith(cc)) phone=cc+phone;
+    if(phone.length<10) continue;
+    members.push({name:name||'Member',phone,row:r+1});
+  }
+  if(!members.length){alert('No valid members found. Check column selection.');return;}
+  goPage(3);
+  refreshPreview();
+}
+
+function refreshPreview(){
+  const msg=document.getElementById('msgBox').value;
+  const s=members.length?members[0]:{name:'Rameshbhai'};
+  document.getElementById('prevBubble').textContent=msg.replace(/{name}/g,s.name);
+}
+
+function startSend(){
+  idx=0;sent=0;skipped=[];
+  document.getElementById('sTot').textContent=members.length;
+  updateStats();goPage(4);showCurrent();
+}
+
+function initials(n){return n.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase()||'?';}
+
+function showCurrent(){
+  if(idx>=members.length){showDone();return;}
+  const m=members[idx];
+  document.getElementById('mAva').textContent=initials(m.name);
+  document.getElementById('mName').textContent=m.name;
+  document.getElementById('mPhone').textContent='+'+m.phone;
+  document.getElementById('mMeta').textContent='Member '+(idx+1)+' of '+members.length;
+  updateStats();
+}
+
+function openWA(){
+  const m=members[idx];
+  const msg=document.getElementById('msgBox').value.replace(/{name}/g,m.name);
+  const enc=encodeURIComponent(msg);
+  if(isMobile){
+    // Deep link — opens WhatsApp app directly on iPhone & Android
+    window.location.href='whatsapp://send?phone='+m.phone+'&text='+enc;
+  } else {
+    window.open('https://wa.me/'+m.phone+'?text='+enc,'waWin');
+  }
+}
+
+function markSent(){sent++;idx++;updateStats();showCurrent();}
+
+function skipOne(){
+  const m=members[idx];skipped.push(m);
+  const d=document.createElement('div');
+  d.className='ski';
+  d.innerHTML='<span>'+esc(m.name)+' · +'+m.phone+'</span><span class="tag">Skipped</span>';
+  document.getElementById('skipItems').appendChild(d);
+  document.getElementById('skipLog').style.display='';
+  idx++;updateStats();showCurrent();
+}
+
+function updateStats(){
+  document.getElementById('sSent').textContent=sent;
+  document.getElementById('sLeft').textContent=members.length-idx;
+  const p=members.length?(idx/members.length*100):0;
+  document.getElementById('pFill').style.width=p+'%';
+  document.getElementById('pLbl').textContent=idx+' / '+members.length+' processed';
+}
+
+function showDone(){
+  goPage(5);
+  document.getElementById('doneMsg').textContent=
+    'Messages opened for '+sent+' member'+(sent!==1?'s':'')+
+    (skipped.length?' · Skipped: '+skipped.length:'')+'.\nGreat work!';
+}
+
+function esc(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+</body>
+</html>
